@@ -1,25 +1,64 @@
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
+import Form from './components/form/Form';
+import TodoList from './components/todo/TodoList';
 import './App.css';
 
-function App() {
+const App = () => {
+  const [inputText, setInputText] = useState('');
+  const [todos, setTodos] = useState([]);
+  const [status, setStatus] = useState('all');
+  const [filteredTodos, setFilteredTodos] = useState([]);
+  useEffect(() => {
+    getLocalTodos();
+  }, []);
+  useEffect(() => {
+    filterHandler();
+    saveLocalTodos();
+    // eslint-disable-next-line
+  }, [todos, status]);
+  const filterHandler = () => {
+    switch (status) {
+      case 'completed':
+        setFilteredTodos(todos.filter(todo => todo.completed));
+        break;
+      case 'uncompleted':
+        setFilteredTodos(todos.filter(todo => !todo.completed));
+        break;
+      case 'all':
+      default:
+        setFilteredTodos(todos);
+
+    }
+  };
+
+  const saveLocalTodos = () => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  };
+  const getLocalTodos = () => {
+    if (localStorage.getItem('todos') === null) {
+      localStorage.setItem('todos', JSON.stringify([]));
+    } else {
+      setTodos(JSON.parse(localStorage.getItem('todos')));
+    }
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div>
+        <header>
+          <h1>Todo List</h1>
+        </header>
+        <Form
+            todos={todos}
+            setTodos={setTodos}
+            inputText={inputText}
+            setInputText={setInputText}
+            setStatus={setStatus}
+        />
+        <TodoList
+            filteredTodos={filteredTodos}
+            todos={todos}
+            setTodos={setTodos}/>
+      </div>
   );
-}
+};
 
 export default App;
